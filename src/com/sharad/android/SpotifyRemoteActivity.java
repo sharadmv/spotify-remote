@@ -1,18 +1,29 @@
 package com.sharad.android;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
 
 import android.app.Activity;
 import android.os.Bundle;
+import android.os.Handler;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.Spinner;
 
 import com.flotype.bridge.Bridge;
+import com.flotype.bridge.BridgeObject;
 import com.flotype.bridge.BridgeRemoteObject;
+import com.sharad.android.model.Playlist;
 
 public class SpotifyRemoteActivity extends Activity {
+	List<Playlist> playlists;
+
 	interface Spotify extends BridgeRemoteObject {
 		void searchAndPlay(String song);
 
@@ -27,6 +38,39 @@ public class SpotifyRemoteActivity extends Activity {
 		void volumeUp();
 
 		void volumeDown();
+
+		void playlist(String string);
+
+		List<Playlist> getPlaylists(Callback callback);
+	}
+
+	Handler handler = new Handler();
+
+	Spinner spinner;
+
+	PlaylistAdapter adapter;
+
+	class Callback implements BridgeObject {
+		Handler handler;
+
+		public Callback(Handler handler) {
+			this.handler = handler;
+
+		}
+
+		public void callback(final List<LinkedHashMap<String, Object>> plays) {
+			handler.post(new Runnable() {
+
+				public void run() {
+					System.out.println(plays);
+					for (LinkedHashMap<String, Object> l : plays)
+						adapter.add(new Playlist((String) l.get("name"),
+								(String) l.get("uri"), (Integer) l
+										.get("length")));
+				}
+
+			});
+		}
 	}
 
 	Spotify spotify;
@@ -39,6 +83,35 @@ public class SpotifyRemoteActivity extends Activity {
 		try {
 			bridge.connect();
 			spotify = bridge.getService("spotify", Spotify.class);
+			spinner = (Spinner) findViewById(R.id.playlists);
+			playlists = new ArrayList<Playlist>();
+			adapter = new PlaylistAdapter(getApplicationContext(),
+					R.layout.playlist, playlists);
+			adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+
+			spinner.setAdapter(adapter);
+			spinner.setSelection(0);
+			spinner.setOnItemSelectedListener(new OnItemSelectedListener() {
+
+				public void onItemSelected(AdapterView<?> parent, View view,
+						int pos, long id) {
+					System.out.println(playlists.get(pos));
+				}
+
+				public void onNothingSelected(AdapterView<?> arg0) {
+					// TODO Auto-generated method stub
+
+				}
+
+			});
+			((Button) findViewById(R.id.playplaylist))
+					.setOnClickListener(new OnClickListener() {
+
+						public void onClick(View arg0) {
+							spotify.playlist(((Playlist) spinner.getSelectedItem()).getUri());
+						}
+
+					});
 			((Button) findViewById(R.id.play))
 					.setOnClickListener(new OnClickListener() {
 
@@ -98,6 +171,7 @@ public class SpotifyRemoteActivity extends Activity {
 						}
 
 					});
+			spotify.getPlaylists(new Callback(handler));
 
 			super.onCreate(savedInstanceState);
 		} catch (IOException e) {

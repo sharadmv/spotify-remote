@@ -3,6 +3,15 @@
     <title>Remote</title>
     <script type="text/javascript" src=" http://flotype.com/js/bridge.min.js"></script>
     <script>
+      var playlistUris = ["spotify:user:127386082:playlist:5hnPGc45rzkNlfjiQG9lYa",
+      "spotify:user:aleksar:playlist:2L3LptAWx0Amb2UPhaoNv4",
+      "spotify:user:127386082:playlist:3171HndNVanhNPDGy5XUER",
+      "spotify:user:127386082:playlist:4g4cc7j14eFm7NSRSygpd5",
+      "spotify:user:127386082:playlist:3LbnUgovDfyg4J7ZQLmf3I",
+      "spotify:user:xcalibar:playlist:3ePkgN4xz0kRraZyXIJjop",
+      "spotify:user:127386082:playlist:4B0cb2gCPEEHaensM7vlEq",
+      "spotify:user:127386082:playlist:22S7kCAwuil2kqCe82WD99"];
+      var playlists = [];
       var bridge = new Bridge({apiKey:"abcdefgh"});
       var sp = getSpotifyApi(1);
       var models = sp.require('sp://import/scripts/api/models');
@@ -50,7 +59,16 @@
           volumeDown:function(){
             console.log("Volume Down");
             models.player.volume--;
+          },
+          getPlaylists:function(callback){
+            callback(playlists);
           }
+        }
+        for (var i in playlistUris){
+          models.Playlist.fromURI(playlistUris[i], function(playlist) {
+            console.log("Playlist loaded", playlist.name);
+            playlists.push({uri:playlist.uri,name:playlist.name,length:playlist.length});
+          });
         }
         var play = function(obj,context){
           if (context){

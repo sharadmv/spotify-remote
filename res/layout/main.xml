@@ -19,6 +19,17 @@
         android:layout_height="wrap_content"
         android:text="Play" />
 
+    <Spinner
+        android:id="@+id/playlists"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
+    <Button
+        android:id="@+id/playplaylist"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Play Playlist" />
+
     <Button
         android:id="@+id/pause"
         android:layout_width="match_parent"
