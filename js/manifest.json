@@ -1,0 +1,13 @@
+{
+  "AppName":"Remote",
+  "AppDescription":"A spotify remote",
+  "BundleType":"Application",
+  "BundleIdentifier": "remote",
+    "SupportedLanguages": [
+      "en"
+      ],
+    "RequiredPermissions": [
+      "http://flotype.com","http://*.flotype.com"
+      ],
+    "VendorIdentifier":"com.sharad"
+}

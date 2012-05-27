@@ -1,0 +1,70 @@
+<html>
+  <head>
+    <title>Remote</title>
+    <script type="text/javascript" src=" http://flotype.com/js/bridge.min.js"></script>
+    <script>
+      var bridge = new Bridge({apiKey:"abcdefgh"});
+      var sp = getSpotifyApi(1);
+      var models = sp.require('sp://import/scripts/api/models');
+      var lib = models.library;
+      console.log(models);
+      bridge.connect();
+      bridge.ready(function(){
+        var serv = {
+          search:function(msg,callback){
+            var search = new models.Search(msg);
+            search.localResults = models.LOCALSEARCHRESULTS.PREPEND;
+            search.observe(models.EVENT.CHANGE, function() {
+              callback(search.tracks);
+            });
+            search.appendNext();
+          },
+          searchAndPlay:function(msg){
+            serv.search(msg,function(obj){
+              play(obj[0]);
+            });
+          },
+          playlist:function(playlist){
+            var pl = models.Playlist.fromURI(playlist, function(p){
+              play(p.data.getTrack(0),p);
+            });
+          },
+          next:function(){
+            models.player.next();
+          },
+          previous:function(){
+            models.player.previous();
+          },
+          pause:function(){
+            models.player.playing = false;
+          },
+          resume:function(){
+            models.player.playing = true;
+          },
+          volumeUp:function(){
+            console.log("Volume Up");
+            player = models.player;
+            console.log(models.player);
+            models.player.volume++;
+          },
+          volumeDown:function(){
+            console.log("Volume Down");
+            models.player.volume--;
+          }
+        }
+        var play = function(obj,context){
+          if (context){
+            models.player.play(obj.uri,context);
+            } else {
+            models.player.play(obj.uri);
+          }
+        }
+        bridge.publishService("spotify",serv);
+        console.log("ready");
+      });
+    </script>
+  </head>
+  <body>
+    Hello Sup Testing
+  </body>
+</html>
