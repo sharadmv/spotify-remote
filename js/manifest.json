@@ -7,7 +7,7 @@
       "en"
       ],
     "RequiredPermissions": [
-      "http://flotype.com","http://*.flotype.com"
+      "http://flotype.com","http://*.flotype.com","http://*.jquery.com","https://graph.facebook.com"
       ],
     "VendorIdentifier":"com.sharad"
 }

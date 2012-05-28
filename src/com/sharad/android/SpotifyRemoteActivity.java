@@ -15,6 +15,7 @@ import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Spinner;
+import android.widget.TextView;
 
 import com.flotype.bridge.Bridge;
 import com.flotype.bridge.BridgeObject;
@@ -41,7 +42,9 @@ public class SpotifyRemoteActivity extends Activity {
 
 		void playlist(String string);
 
-		List<Playlist> getPlaylists(Callback callback);
+		List<Playlist> getPlaylists(PlaylistCallback callback);
+
+		void setNowCallback(NowPlayingCallback callback);
 	}
 
 	Handler handler = new Handler();
@@ -50,10 +53,28 @@ public class SpotifyRemoteActivity extends Activity {
 
 	PlaylistAdapter adapter;
 
-	class Callback implements BridgeObject {
+	class NowPlayingCallback implements BridgeObject {
 		Handler handler;
 
-		public Callback(Handler handler) {
+		public NowPlayingCallback(Handler handler) {
+			this.handler = handler;
+		}
+
+		public void callback(final String song) {
+			handler.post(new Runnable() {
+
+				public void run() {
+					setNowPlaying(song);
+				}
+
+			});
+		}
+	}
+
+	class PlaylistCallback implements BridgeObject {
+		Handler handler;
+
+		public PlaylistCallback(Handler handler) {
 			this.handler = handler;
 
 		}
@@ -62,7 +83,6 @@ public class SpotifyRemoteActivity extends Activity {
 			handler.post(new Runnable() {
 
 				public void run() {
-					System.out.println(plays);
 					for (LinkedHashMap<String, Object> l : plays)
 						adapter.add(new Playlist((String) l.get("name"),
 								(String) l.get("uri"), (Integer) l
@@ -79,10 +99,13 @@ public class SpotifyRemoteActivity extends Activity {
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		Bridge bridge = new Bridge().setApiKey("abcdefgh");
-		setContentView(R.layout.main);
+		setContentView(R.layout.spotify);
 		try {
 			bridge.connect();
-			spotify = bridge.getService("spotify", Spotify.class);
+			spotify = bridge
+					.getService("spotify" + getIntent().getStringExtra("id"),
+							Spotify.class);
+			spotify.setNowCallback(new NowPlayingCallback(handler));
 			spinner = (Spinner) findViewById(R.id.playlists);
 			playlists = new ArrayList<Playlist>();
 			adapter = new PlaylistAdapter(getApplicationContext(),
@@ -99,7 +122,6 @@ public class SpotifyRemoteActivity extends Activity {
 				}
 
 				public void onNothingSelected(AdapterView<?> arg0) {
-					// TODO Auto-generated method stub
 
 				}
 
@@ -108,7 +130,8 @@ public class SpotifyRemoteActivity extends Activity {
 					.setOnClickListener(new OnClickListener() {
 
 						public void onClick(View arg0) {
-							spotify.playlist(((Playlist) spinner.getSelectedItem()).getUri());
+							spotify.playlist(((Playlist) spinner
+									.getSelectedItem()).getUri());
 						}
 
 					});
@@ -171,11 +194,16 @@ public class SpotifyRemoteActivity extends Activity {
 						}
 
 					});
-			spotify.getPlaylists(new Callback(handler));
+			spotify.getPlaylists(new PlaylistCallback(handler));
 
 			super.onCreate(savedInstanceState);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
 	}
+
+	public void setNowPlaying(String song) {
+		((TextView) findViewById(R.id.now)).setText("Now Playing: " + song);
+	}
+
 }

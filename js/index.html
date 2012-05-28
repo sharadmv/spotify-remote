@@ -1,26 +1,37 @@
 <html>
   <head>
     <title>Remote</title>
-    <script type="text/javascript" src=" http://flotype.com/js/bridge.min.js"></script>
+    <script type="text/javascript"
+      src=" http://flotype.com/js/bridge.min.js"></script>
+    <script type="text/javascript"
+      src="http://code.jquery.com/jquery-1.7.2.min.js"></script>
     <script>
-      var playlistUris = ["spotify:user:127386082:playlist:5hnPGc45rzkNlfjiQG9lYa",
+      var playlistUris = [
+      "spotify:user:127386082:playlist:5hnPGc45rzkNlfjiQG9lYa",
       "spotify:user:aleksar:playlist:2L3LptAWx0Amb2UPhaoNv4",
       "spotify:user:127386082:playlist:3171HndNVanhNPDGy5XUER",
       "spotify:user:127386082:playlist:4g4cc7j14eFm7NSRSygpd5",
       "spotify:user:127386082:playlist:3LbnUgovDfyg4J7ZQLmf3I",
       "spotify:user:xcalibar:playlist:3ePkgN4xz0kRraZyXIJjop",
       "spotify:user:127386082:playlist:4B0cb2gCPEEHaensM7vlEq",
-      "spotify:user:127386082:playlist:22S7kCAwuil2kqCe82WD99"];
+      "spotify:user:127386082:playlist:22S7kCAwuil2kqCe82WD99",
+      "spotify:user:topsify:playlist:5iwkYfnHAGMEFLiHFFGnP4",
+      "spotify:user:127386082:playlist:1nq2v2UlN0p8sRkJ0vEdxd",
+      "spotify:user:xcalibar:playlist:4Rl72bNIuOyq8A2ESFAarQ"];
+      var nowCallback = function(song) {
+      };
       var playlists = [];
-      var bridge = new Bridge({apiKey:"abcdefgh"});
+      var bridge = new Bridge({
+        apiKey : "abcdefgh"
+      });
       var sp = getSpotifyApi(1);
       var models = sp.require('sp://import/scripts/api/models');
       var lib = models.library;
       console.log(models);
       bridge.connect();
-      bridge.ready(function(){
+      bridge.ready(function() {
         var serv = {
-          search:function(msg,callback){
+          search : function(msg, callback) {
             var search = new models.Search(msg);
             search.localResults = models.LOCALSEARCHRESULTS.PREPEND;
             search.observe(models.EVENT.CHANGE, function() {
@@ -28,61 +39,96 @@
             });
             search.appendNext();
           },
-          searchAndPlay:function(msg){
-            serv.search(msg,function(obj){
+          searchAndPlay : function(msg) {
+            serv.search(msg, function(obj) {
               play(obj[0]);
             });
           },
-          playlist:function(playlist){
-            var pl = models.Playlist.fromURI(playlist, function(p){
-              play(p.data.getTrack(0),p);
+          playlist : function(playlist) {
+            var pl = models.Playlist.fromURI(playlist, function(p) {
+              play(p.data.getTrack(0), p);
             });
           },
-          next:function(){
+          next : function() {
             models.player.next();
           },
-          previous:function(){
+          previous : function() {
             models.player.previous();
           },
-          pause:function(){
+          pause : function() {
             models.player.playing = false;
           },
-          resume:function(){
+          resume : function() {
             models.player.playing = true;
           },
-          volumeUp:function(){
+          volumeUp : function() {
             console.log("Volume Up");
             player = models.player;
             console.log(models.player);
             models.player.volume++;
           },
-          volumeDown:function(){
+          volumeDown : function() {
             console.log("Volume Down");
             models.player.volume--;
           },
-          getPlaylists:function(callback){
+          getPlaylists : function(callback) {
             callback(playlists);
+          },
+          setNowCallback : function(callback) {
+            console.log("hey");
+            nowCallback = callback;
+            callback(models.player.track.data.name + " - "
+            + models.player.track.data.artists[0].name);
           }
         }
-        for (var i in playlistUris){
+        for ( var i in playlistUris) {
           models.Playlist.fromURI(playlistUris[i], function(playlist) {
             console.log("Playlist loaded", playlist.name);
-            playlists.push({uri:playlist.uri,name:playlist.name,length:playlist.length});
+            playlists.push({
+              uri : playlist.uri,
+              name : playlist.name,
+              length : playlist.length
+            });
           });
         }
-        var play = function(obj,context){
-          if (context){
-            models.player.play(obj.uri,context);
+        var play = function(obj, context) {
+          if (context) {
+            models.player.play(obj.uri, context);
             } else {
             models.player.play(obj.uri);
           }
         }
-        bridge.publishService("spotify",serv);
+        models.player.observe(models.EVENT.CHANGE, function(event) {
+          console.log(event);
+          nowCallback(models.player.track.data.name + " - "
+          + models.player.track.data.artists[0].name);
+        });
+        var auth = sp.require('sp://import/scripts/api/auth');
+        auth.authenticateWithFacebook('316216588456628', ['user_about_me', 'user_checkins'], {
+
+          onSuccess : function(accessToken, ttl) {
+            console.log("Success! Here's the access token: " + accessToken);
+            $.getJSON("https://graph.facebook.com/me?callback=?&access_token="+accessToken,function(obj){
+              unique = obj.id;
+              console.log(unique);
+              $("#input").html(unique);
+              bridge.publishService("spotify"+unique, serv);
+            });
+          },
+
+          onFailure : function(error) {
+            console.log("Authentication failed with error: " + error);
+          },
+
+          onComplete : function() { }
+        }); 
         console.log("ready");
       });
     </script>
   </head>
   <body>
-    Hello Sup Testing
+    Please input the following number as a verification code:
+    <div id="input">
+    </div>
   </body>
 </html>
