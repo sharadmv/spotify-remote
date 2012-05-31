@@ -49,7 +49,7 @@
             });
           },
           next : function() {
-            models.player.next();
+            models.player.position = models.player.track.data.duration;
           },
           previous : function() {
             models.player.previous();
