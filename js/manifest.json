@@ -2,7 +2,7 @@
   "AppName":"Remote",
   "AppDescription":"A spotify remote",
   "BundleType":"Application",
-  "BundleIdentifier": "remote",
+  "BundleIdentifier": "spotify-remote",
     "SupportedLanguages": [
       "en"
       ],
