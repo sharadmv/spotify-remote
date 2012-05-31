@@ -10,20 +10,88 @@
         android:layout_height="wrap_content"
         android:text="Now Playing: " />
 
-    <EditText
-        android:id="@+id/song"
+    <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:ems="10" >
+        android:padding="10dp" >
 
-        <requestFocus />
-    </EditText>
+        <ImageView
+            android:id="@+id/album"
+            android:layout_width="225dp"
+            android:layout_height="225dp"
+            android:layout_centerHorizontal="true"
+            android:adjustViewBounds="true"
+            android:src="@drawable/ic_launcher" />
+    </RelativeLayout>
 
-    <Button
-        android:id="@+id/play"
+    <SeekBar
+        android:id="@+id/seekBar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Play" />
+        android:background="@layout/seekbar" />
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" >
+
+        <TextView
+            android:id="@+id/time"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentTop="true"
+            android:text="Time" />
+
+        <TextView
+            android:id="@+id/left"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentTop="true"
+            android:text="Left" />
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" >
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentTop="true"
+            android:layout_centerHorizontal="true" >
+
+            <ImageButton
+                android:id="@+id/previousButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1.0"
+                android:cropToPadding="false"
+                android:paddingLeft="10dp"
+                android:scaleType="fitXY"
+                android:src="@drawable/previous" />
+
+            <ImageButton
+                android:id="@+id/playButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1.0"
+                android:cropToPadding="false"
+                android:paddingLeft="10dp"
+                android:scaleType="fitXY"
+                android:src="@drawable/play" />
+
+            <ImageButton
+                android:id="@+id/nextButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1.0"
+                android:cropToPadding="false"
+                android:paddingLeft="10dp"
+                android:scaleType="fitXY"
+                android:src="@drawable/next" />
+        </LinearLayout>
+    </RelativeLayout>
 
     <Spinner
         android:id="@+id/playlists"
@@ -35,52 +103,5 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="Play Playlist" />
-
-    <Button
-        android:id="@+id/pause"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Pause" />
-
-    <Button
-        android:id="@+id/resume"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Resume" />
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content" >
-
-        <Button
-            android:id="@+id/vDown"
-            android:layout_width="154dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="0.33"
-            android:text="Volume Down" />
-
-        <Button
-            android:id="@+id/vUp"
-            android:layout_width="159dp"
-            android:layout_height="wrap_content"
-            android:text="Volume Up" />
-    </LinearLayout>
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content" >
-
-        <Button
-            android:id="@+id/previous"
-            android:layout_width="158dp"
-            android:layout_height="wrap_content"
-            android:text="Previous" />
-
-        <Button
-            android:id="@+id/next"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Next" />
-    </LinearLayout>
 
 </LinearLayout>

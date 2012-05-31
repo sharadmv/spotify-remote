@@ -3,8 +3,7 @@
     <title>Remote</title>
     <script type="text/javascript"
       src=" http://flotype.com/js/bridge.min.js"></script>
-    <script type="text/javascript"
-      src="http://code.jquery.com/jquery-1.7.2.min.js"></script>
+    <script type="text/javascript" src="http://code.jquery.com/jquery-1.7.2.min.js"></script>
     <script>
       var playlistUris = [
       "spotify:user:127386082:playlist:5hnPGc45rzkNlfjiQG9lYa",
@@ -61,27 +60,21 @@
           resume : function() {
             models.player.playing = true;
           },
-          volumeUp : function() {
-            console.log("Volume Up");
-            player = models.player;
-            console.log(models.player);
-            models.player.volume++;
-          },
-          volumeDown : function() {
-            console.log("Volume Down");
-            models.player.volume--;
-          },
           getPlaylists : function(callback) {
             callback(playlists);
           },
-          setNowCallback : function(callback) {
-            console.log("hey");
+          setUpdateCallback : function(callback) {
             nowCallback = callback;
-            callback(models.player.track.data.name + " - "
-            + models.player.track.data.artists[0].name);
+            nowCallback(models.player.track.data,models.player.playing);
+          },
+          setPosition: function(pos){
+            models.player.position = pos;
+          },
+          getPosition:function(callback){
+            callback(models.player.position);
           }
         }
-        for ( var i in playlistUris) {
+        for (var i in playlistUris) {
           models.Playlist.fromURI(playlistUris[i], function(playlist) {
             console.log("Playlist loaded", playlist.name);
             playlists.push({
@@ -99,9 +92,7 @@
           }
         }
         models.player.observe(models.EVENT.CHANGE, function(event) {
-          console.log(event);
-          nowCallback(models.player.track.data.name + " - "
-          + models.player.track.data.artists[0].name);
+          nowCallback(models.player.track.data,models.player.playing);
         });
         var auth = sp.require('sp://import/scripts/api/auth');
         auth.authenticateWithFacebook('316216588456628', ['user_about_me', 'user_checkins'], {
@@ -110,8 +101,6 @@
             console.log("Success! Here's the access token: " + accessToken);
             $.getJSON("https://graph.facebook.com/me?callback=?&access_token="+accessToken,function(obj){
               unique = obj.id;
-              console.log(unique);
-              $("#input").html(unique);
               bridge.publishService("spotify"+unique, serv);
             });
           },
@@ -127,8 +116,6 @@
     </script>
   </head>
   <body>
-    Please input the following number as a verification code:
-    <div id="input">
-    </div>
+    Thanks for using Spotify Remote!
   </body>
 </html>
