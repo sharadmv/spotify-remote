@@ -49,7 +49,7 @@
             });
           },
           next : function() {
-            models.player.position = models.player.track.data.duration;
+            models.player.next();
           },
           previous : function() {
             models.player.previous();
@@ -92,6 +92,14 @@
           }
         }
         models.player.observe(models.EVENT.CHANGE, function(event) {
+          if (event.data.curtrack && event.data.playstate){
+            if (models.player.track.data.isAd){
+              console.log("SKIPPING");
+              models.player.position = models.player.track.data.duration;
+              } else {
+              console.log("NOT AD");
+            }
+          }
           nowCallback(models.player.track.data,models.player.playing);
         });
         var auth = sp.require('sp://import/scripts/api/auth');
@@ -101,6 +109,8 @@
             console.log("Success! Here's the access token: " + accessToken);
             $.getJSON("https://graph.facebook.com/me?callback=?&access_token="+accessToken,function(obj){
               unique = obj.id;
+              console.log(unique);
+              console.log("spotify"+unique);
               bridge.publishService("spotify"+unique, serv);
             });
           },

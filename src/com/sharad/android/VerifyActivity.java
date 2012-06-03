@@ -51,6 +51,7 @@ public class VerifyActivity extends Activity {
 	private SharedPreferences mPrefs;
 	private AsyncFacebookRunner mAsyncRunner;
 	private Handler handler;
+	private String id;
 
 	List<Playlist> playlists;
 	boolean playing = false;
@@ -152,7 +153,7 @@ public class VerifyActivity extends Activity {
 						JSONObject obj;
 						try {
 							obj = new JSONObject(response);
-							System.out.println(obj.get("id"));
+							id = (String) obj.get("id");
 							bridge.connect();
 							spotify = bridge.getService(
 									"spotify" + obj.get("id"), Spotify.class);
@@ -214,6 +215,10 @@ public class VerifyActivity extends Activity {
 											}
 
 										});
+								if (spotify == null) {
+									spotify = bridge.getService("spotify" + id,
+											Spotify.class);
+								}
 								spotify.getPlaylists(new PlaylistCallback());
 								spotify.getPosition(new PositionCallback());
 								((SeekBar) findViewById(R.id.seekBar))
@@ -339,12 +344,15 @@ public class VerifyActivity extends Activity {
 	@SuppressWarnings("unchecked")
 	public void setNowPlaying(final LinkedHashMap<String, Object> song,
 			final boolean play) {
-		downloadBitmap(
-				"http://o.scdn.co/image/"
-						+ ((String) ((LinkedHashMap<String, Object>) song
-								.get("album")).get("cover"))
-								.split("spotify:image:")[1],
-				((ImageView) findViewById(R.id.album)));
+		if (!((LinkedHashMap<String, Object>) song.get("album")).get("cover")
+				.equals("")) {
+			downloadBitmap(
+					"https://d3rt1990lpmkn.cloudfront.net/640/"
+							+ ((String) ((LinkedHashMap<String, Object>) song
+									.get("album")).get("cover"))
+									.split("spotify:image:")[1],
+					((ImageView) findViewById(R.id.album)));
+		}
 		((TextView) findViewById(R.id.now)).setText("Now Playing: "
 				+ song.get("name"));
 		total = (Integer) song.get("duration");
@@ -408,7 +416,6 @@ public class VerifyActivity extends Activity {
 	}
 
 	class BitmapDownloaderTask extends AsyncTask<String, Void, Bitmap> {
-		private String url;
 		private final WeakReference<ImageView> imageViewReference;
 
 		public BitmapDownloaderTask(ImageView imageView) {
